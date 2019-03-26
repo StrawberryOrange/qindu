@@ -13,6 +13,8 @@
 // import HelloWorld from "./components/HelloWorld.vue";
 // import func from './vue-temp/vue-editor-bridge';
 
+import Epub from 'epubjs'
+
 export default {
   name: "app",
   data: function() {
