@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <div id="area"></div>
-    <div id="personal" @click="toPersonal" v-bind:class="{leaveForP:isleave,topForS:isTop}">
+    <div id="personal" @click="toPersonal" 
+         v-bind:class="{leaveForP:isleave,topForS:isTop}">
       <i class="icon iconfont icongerenzhongxin1"></i>
     </div>
     <div id="mask">
@@ -39,7 +40,10 @@
                 :style="{background: item.style.body.background}"
                 :class="{'no-border': item.style.body.background !== '#fff'}"
               ></div>
-              <div class="text" :class="{'selected':index===defaultTheme}">{{item.name}}</div>
+              <div class="text" 
+                   :class="{'selected':index===defaultTheme}">
+                   {{item.name}}
+              </div>
             </div>
           </div>
         </div>
@@ -62,7 +66,7 @@ export default {
   name: "ebook",
   data: function() {
     return {
-      isleave: false,
+      isleave: true,
       isTop: false,
       // isleave_forS: false,
       defaultFontSize: 16,
