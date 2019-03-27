@@ -54,7 +54,7 @@ export default {
   },
   methods: {
     exit: function() {
-      console.log("退出登录~");
+      console.log("退出登录~"); 
     }
   }
 };

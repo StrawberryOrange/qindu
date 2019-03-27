@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div id="area"></div>
-    <div id="personal" @click="toPersonal" v-bind:class="{leave:isleave}">
+    <div id="personal" @click="toPersonal" v-bind:class="{leaveForP:isleave,topForS:isTop}">
       <i class="icon iconfont icongerenzhongxin1"></i>
     </div>
     <div id="mask">
@@ -10,16 +10,41 @@
       <div id="mask-right" @click="nextPage"></div>
     </div>
     <div id="menu-bar">
-      <div class="menu-wrapper">
-        <div class="icon-wrapper">
+      <div class="menu-wrapper" v-bind:class="{leaveForB:isleave}">
+        <div class="icon-wrapper" @click="showSetting(0)">
           <i class="icon iconfont iconProgressread"></i>
         </div>
-        <div class="icon-wrapper">
+        <div class="icon-wrapper" @click="showSetting(1)">
           <i class="icon iconfont iconzhuti"></i>
         </div>
-        <div class="icon-wrapper">
-          <i class="icon iconfont iconA"></i>
+        <div class="icon-wrapper" @click="showSetting(2)">
+          <i class="icon iconfont iconfengniao_zitidaxiao"></i>
         </div>
+        <div class="icon-wrapper" @click="showSetting(3)">
+          <i class="icon iconfont iconshuqian"></i>
+        </div>
+      </div>
+      <div class="setting-wrapper" v-bind:class="{leaveForS:isTop}">
+        <div class="setting-progress" v-if="showTag === 0"></div>
+        <div class="setting-theme" v-if="showTag === 1">
+          <div class="theme-wrapper">
+            <div
+              class="theme"
+              v-for="(item,index) in themeList"
+              :key="index"
+              @click="setTheme(index)"
+            >
+              <div
+                class="preview"
+                :style="{background: item.style.body.background}"
+                :class="{'no-border': item.style.body.background !== '#fff'}"
+              ></div>
+              <div class="text" :class="{'selected':index===defaultTheme}">{{item.name}}</div>
+            </div>
+          </div>
+        </div>
+        <div class="setting-font-size" v-if="showTag === 2"></div>
+        <div class="setting-mark" v-if="showTag === 3"></div>
       </div>
     </div>
     <router-view></router-view>
@@ -38,11 +63,52 @@ export default {
   data: function() {
     return {
       isleave: false,
+      isTop: false,
+      // isleave_forS: false,
       defaultFontSize: 16,
+      themeList: [
+        {
+          name: "default",
+          style: {
+            body: {
+              color: "#000",
+              background: "#fff"
+            }
+          }
+        },
+        {
+          name: "eye",
+          style: {
+            body: {
+              color: "#000",
+              background: "#ceeaba"
+            }
+          }
+        },
+        {
+          name: "night",
+          style: {
+            body: {
+              color: "#999",
+              background: "#000"
+            }
+          }
+        },
+        {
+          name: "gold",
+          style: {
+            body: {
+              color: "#000",
+              background: "rgb(241, 236, 226)"
+            }
+          }
+        }
+      ],
       defaultTheme: 0,
       // 图书是否处于可用状态
       bookAvailable: false,
-      navigation: {}
+      navigation: {},
+      showTag: -1
     };
   },
   methods: {
@@ -59,7 +125,7 @@ export default {
       // 设置默认字体
       // this.setFontSize(this.defaultFontSize);
       // 注册主题
-      // this.registerTheme();
+      this.registerTheme();
       // 设置默认主题
       // this.setTheme(this.defaultTheme);
       // Book对象的钩子函数ready
@@ -95,6 +161,27 @@ export default {
     },
     toggleBar: function() {
       this.isleave = !this.isleave;
+      if (this.isleave) {
+        this.showTag = -1;
+        this.isTop = false;
+      }
+      // this.isleave_forS = true;
+    },
+    showSetting: function(tag) {
+      this.showTag = tag;
+      this.isTop = true;
+    },
+    selectProgress: function() {
+      console.log("selectProjress");
+    },
+    selectTheme: function() {
+      console.log("selectTemes");
+    },
+    selectFontsize: function() {
+      console.log("selecfFontsize");
+    },
+    addMark: function() {
+      console.log("addMark");
     },
     //跳转
     jumpTo(href) {
@@ -106,6 +193,11 @@ export default {
       this.themeList.forEach(theme => {
         this.themes.register(theme.name, theme.style);
       });
+    },
+    //设置主题
+    setTheme(index) {
+      this.themes.select(this.themeList[index].name);
+      this.defaultTheme = index;
     },
     // 设置字号大小
     setFontSize(fontSize) {
@@ -122,14 +214,14 @@ export default {
 </script>
 
 <style lang="scss">
-@import url("//at.alicdn.com/t/font_1101334_gp70avx2014.css");
+// @import url("//at.alicdn.com/t/font_1101334_gp70avx2014.css");
 
 #app {
   position: relative;
   #personal {
-    z-index: 12;
+    z-index: 13;
     position: fixed;
-    bottom: 40px;
+    bottom: 88px;
     left: 40px;
     height: 60px;
     width: 60px;
@@ -141,10 +233,14 @@ export default {
     align-items: center;
     justify-content: center;
     box-shadow: 0 0 10px rgba(102, 102, 102, 0.6);
-    transition: all 0.5s linear;
-    &.leave {
-      transform: translate3d(0, 200%, 0);
+    transition: all 0.5s ease;
+    &.leaveForP {
+      transform: translate3d(0, 300%, 0);
       transition: all 0.5s ease;
+    }
+    &.topForS {
+      transform: translate3d(0, -60px, 0);
+      transition: all 0.3s ease;
     }
     i {
       padding: 10px;
@@ -173,15 +269,81 @@ export default {
   }
   #menu-bar {
     .menu-wrapper {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #fff;
+      z-index: 12;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(102, 102, 102, 0.6);
       display: flex;
       height: 48px;
-      background-color: aqua;
+      // background-color: aqua;
       // justify-content: center;
       align-items: center;
-      .icon-wrapper{
+      &.leaveForB {
+        transform: translate3d(0, 45px, 0);
+        transition: all 0.3s ease;
+      }
+      .icon-wrapper {
         flex-grow: 1;
         display: flex;
         justify-content: center;
+      }
+    }
+    .setting-wrapper {
+      position: fixed;
+      bottom: 0px;
+      left: 0;
+      right: 0;
+      transition: all 0.1s ease;
+      z-index: 12;
+      &.leaveForS {
+        transform: translate3d(0, -47px, 0);
+        transition: all 0.1s ease;
+      }
+      .setting-progress {
+        height: 60px;
+        background-color: red;
+      }
+      .setting-theme {
+        background-color: white;
+        box-shadow: 0 -5px 5px rgba(102, 102, 102, 0.4);
+        height: 60px;
+        .theme-wrapper {
+          display: flex;
+          flex-direction: row;
+          .theme {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            width: 60px;
+            .preview {
+              height: 30px;
+              margin: 5px;
+              border: 1px solid #ccc;
+              box-sizing: border-box;
+              &.no-border {
+                border: none;
+              }
+            }
+            .text {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #ccc;
+              &.selected {
+                color: #333;
+              }
+            }
+          }
+        }
+      }
+      .setting-font-size {
+        height: 60px;
+        background-color: gray;
       }
     }
   }
