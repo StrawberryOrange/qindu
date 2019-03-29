@@ -1,8 +1,7 @@
 <template>
   <div id="app">
     <div id="area"></div>
-    <div id="personal" @click="toPersonal" 
-         v-bind:class="{leaveForP:isleave,topForS:isTop}">
+    <div id="personal" @click="toPersonal" v-bind:class="{leaveForP:isleave,topForS:isTop}">
       <i class="icon iconfont icongerenzhongxin1"></i>
     </div>
     <div id="mask">
@@ -40,14 +39,33 @@
                 :style="{background: item.style.body.background}"
                 :class="{'no-border': item.style.body.background !== '#fff'}"
               ></div>
-              <div class="text" 
-                   :class="{'selected':index===defaultTheme}">
-                   {{item.name}}
-              </div>
+              <div class="text" :class="{'selected':index===defaultTheme}">{{item.name}}</div>
             </div>
           </div>
         </div>
-        <div class="setting-font-size" v-if="showTag === 2"></div>
+        <div class="setting-font-size" v-if="showTag === 2">
+          <div class="preview" :style="{fontSize: fontSizeList[0].fontSize + 'px'}">A</div>
+          <div class="select">
+            <div
+              class="select-wrapper"
+              v-for="(item, index) in fontSizeList"
+              :key="index"
+              @click="setFontSize(item.fontSize)"
+            >
+              <div class="line"></div>
+              <div class="point-wrapper">
+                <div class="point" v-show="defaultFontSize === item.fontSize">
+                  <div class="small-point"></div>
+                </div>
+              </div>
+              <div class="line"></div>
+            </div>
+          </div>
+          <div
+            class="preview"
+            :style="{fontSize: fontSizeList[fontSizeList.length - 1].fontSize + 'px'}"
+          >A</div>
+        </div>
         <div class="setting-mark" v-if="showTag === 3"></div>
       </div>
     </div>
@@ -59,6 +77,8 @@
 //http://localhost/ebook/8720238.epub
 
 import Epub from "epubjs";
+// import { clearInterval } from "timers";
+// const ebookurl = "/static/8720238.epub";
 const ebookurl = "http://localhost/ebook/8720238.epub";
 // const ebookurl = "http://140.143.24.96/epubBook/8720238.epub"
 
@@ -66,13 +86,22 @@ export default {
   name: "ebook",
   data: function() {
     return {
-      isleave: true,
+      isleave: false,
       isTop: false,
       // isleave_forS: false,
+      fontSizeList: [
+        { fontSize: 12 },
+        { fontSize: 14 },
+        { fontSize: 16 },
+        { fontSize: 18 },
+        { fontSize: 20 },
+        { fontSize: 22 },
+        { fontSize: 24 }
+      ],
       defaultFontSize: 16,
       themeList: [
         {
-          name: "default",
+          name: "默认",
           style: {
             body: {
               color: "#000",
@@ -81,7 +110,7 @@ export default {
           }
         },
         {
-          name: "eye",
+          name: "护眼",
           style: {
             body: {
               color: "#000",
@@ -90,7 +119,7 @@ export default {
           }
         },
         {
-          name: "night",
+          name: "夜间",
           style: {
             body: {
               color: "#999",
@@ -99,16 +128,25 @@ export default {
           }
         },
         {
-          name: "gold",
+          name: "纸质",
           style: {
             body: {
               color: "#000",
               background: "rgb(241, 236, 226)"
             }
           }
+        },
+        {
+          name: "自定义",
+          style: {
+            body: {
+              color: "#000",
+              background: "yellow"
+            }
+          }
         }
       ],
-      defaultTheme: 0,
+      defaultTheme: 3,
       // 图书是否处于可用状态
       bookAvailable: false,
       navigation: {},
@@ -127,11 +165,11 @@ export default {
       //theme对象
       this.themes = this.rendition.themes;
       // 设置默认字体
-      // this.setFontSize(this.defaultFontSize);
+      this.setFontSize(this.defaultFontSize);
       // 注册主题
       this.registerTheme();
       // 设置默认主题
-      // this.setTheme(this.defaultTheme);
+      this.setTheme(this.defaultTheme);
       // Book对象的钩子函数ready
       this.book.ready
         .then(() => {
@@ -156,11 +194,17 @@ export default {
     prevPage: function() {
       if (this.rendition) {
         this.rendition.prev();
+        setTimeout(() => {
+          this.setFontSize(this.defaultFontSize);
+        }, 200);
       }
     },
     nextPage: function() {
       if (this.rendition) {
         this.rendition.next();
+        setTimeout(() => {
+          this.setFontSize(this.defaultFontSize);
+        }, 200);
       }
     },
     toggleBar: function() {
@@ -173,20 +217,24 @@ export default {
     },
     showSetting: function(tag) {
       this.showTag = tag;
-      this.isTop = true;
+      if (tag != 3) {
+        this.isTop = true;
+      } else {
+        this.isTop = false;
+      }
     },
     selectProgress: function() {
       console.log("selectProjress");
     },
-    selectTheme: function() {
-      console.log("selectTemes");
-    },
-    selectFontsize: function() {
-      console.log("selecfFontsize");
-    },
-    addMark: function() {
-      console.log("addMark");
-    },
+    // selectTheme: function() {
+    //   console.log("selectTemes");
+    // },
+    // selectFontsize: function() {
+    //   console.log("selecfFontsize");
+    // },
+    // addMark: function() {
+    //   console.log("addMark");
+    // },
     //跳转
     jumpTo(href) {
       this.rendition.display(href);
@@ -255,7 +303,7 @@ export default {
 
   #mask {
     display: flex;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     height: 100%;
@@ -310,6 +358,7 @@ export default {
       .setting-progress {
         height: 60px;
         background-color: red;
+        box-shadow: 0 -5px 5px rgba(102, 102, 102, 0.4);
       }
       .setting-theme {
         background-color: white;
@@ -347,7 +396,72 @@ export default {
       }
       .setting-font-size {
         height: 60px;
-        background-color: gray;
+        box-shadow: 0 -5px 5px rgba(102, 102, 102, 0.4);
+        background-color: white;
+        display: flex;
+        .preview {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-grow: 0;
+          flex-shrink: 0;
+          flex-basis: 20px;
+        }
+        .select {
+          display: flex;
+          flex: 1;
+          .select-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            &:first-child {
+              .line {
+                &:first-child {
+                  border-top: none;
+                }
+              }
+            }
+            &:last-child {
+              .line {
+                &:last-child {
+                  border-top: none;
+                }
+              }
+            }
+            .line {
+              flex: 1;
+              height: 0;
+              border-top: 1px solid #ccc;
+            }
+            .point-wrapper {
+              position: relative;
+              flex: 0 0 0;
+              width: 0;
+              height: 7px;
+              border-left: 1px solid #ccc;
+              .point {
+                position: absolute;
+                top: -8px;
+                left: -10px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: white;
+                border: 1px solid #ccc;
+                box-shadow: 0 0 8px rgba(0, 0, 0, 0.35);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                .small-point {
+                  width: 5px;
+                  height: 5px;
+                  background: black;
+                  border-radius: 50%;
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

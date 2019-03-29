@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import personal from './views/personal'
 import none from './views/none'
+import ebookStore from './views/ebookStore'
 
 
 Vue.use(Router)
@@ -11,11 +12,18 @@ export default new Router({
     {
       path: '/',
       name: 'none',
-      component:none
-    },{
+      component: none
+    }, {
       path: '/personal',
       name: 'personal',
-      component:personal
+      component: personal,
+      children: [
+        {
+          path: 'ebookStore',
+          name: 'ebookStore',
+          component: ebookStore
+        }
+      ]
     }
     // {
     //   path: '/about',

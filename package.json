@@ -13,6 +13,8 @@
     "sass": "^1.17.3",
     "sass-loader": "^7.1.0",
     "scss": "^0.2.4",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
     "vue": "^2.6.6",
     "vue-router": "^3.0.1"
   },
@@ -34,7 +36,10 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
+    "rules": {
+      "no-console":"off",
+      "no-irregular-whitespace":"off"
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }
