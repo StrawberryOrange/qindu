@@ -1,6 +1,79 @@
 <script>
-var PATH = "http://localhost/ebook/";
-var booklist = [
+const PATH = "http://localhost/ebook/";
+
+const fontSizeList = [
+  { fontSize: 12 },
+  { fontSize: 14 },
+  { fontSize: 16 },
+  { fontSize: 18 },
+  { fontSize: 20 },
+  { fontSize: 22 },
+  { fontSize: 24 }
+];
+const pickerlistForFontSize = [
+  { text: "12", value: "12" },
+  { text: "14", value: "14" },
+  { text: "16", value: "16" },
+  { text: "18", value: "18" },
+  { text: "20", value: "20" },
+  { text: "22", value: "22" },
+  { text: "24", value: "24" }
+];
+const pickerlistForTheme = [
+  { text: "默认", value: "默认" },
+  { text: "护眼", value: "护眼" },
+  { text: "夜间", value: "夜间" },
+  { text: "纸质", value: "纸质" },
+  { text: "自定义", value: "自定义" }
+];
+const themeList = [
+  {
+    name: "默认",
+    style: {
+      body: {
+        color: "#000",
+        background: "#fff"
+      }
+    }
+  },
+  {
+    name: "护眼",
+    style: {
+      body: {
+        color: "#000",
+        background: "#ceeaba"
+      }
+    }
+  },
+  {
+    name: "夜间",
+    style: {
+      body: {
+        color: "#999",
+        background: "#000"
+      }
+    }
+  },
+  {
+    name: "纸质",
+    style: {
+      body: {
+        color: "#000",
+        background: "rgb(241, 236, 226)"
+      }
+    }
+  },
+  {
+    name: "自定义",
+    style: {
+      body: {
+        color: "#000",
+        background: "yellow"
+      }
+    }
+  }
+];
+const booklist = [
   {
     name: "长生界",
     img: "http://pic.baike.soso.com/p/20130614/20130614173630-2136726956.jpg",
@@ -102,17 +175,66 @@ var booklist = [
     url: "http://localhost/ebook/8720243.epub"
   }
 ];
+
+var userBookList = [];
+var getUserBookList = () => userBookList;
+var setUserBookList = (method, index) => {
+  if (method == "add") {
+    if (-1 == userBookList.indexOf(booklist[index])) {
+      userBookList.push(booklist[index]);
+    } else console.log("已添加！");
+    // console.log("inGlobal:" + userBookList);
+  }
+  if (method == "delete") {
+    userBookList.splice(index, 1);
+  }
+};
+
+
+/*
+全局toast
+使用方式：this.GLOBAL.toast({option})
+入参option：对象
+例如
+this.GLOBAL.toast({
+  type: 'correct',
+  message: '测试内容',
+  time:1500
+});
+type可选值：loading、correct、error、warn、txt
+*/
+var g_toast = null;
+var toast = function(options) {
+  setTimeout(() => {
+    if (!g_toast) {
+      var self = this;
+      var vm = window.vm;
+      g_toast = vm.$createToast({
+        txt: (options && options.message) || "异常",
+        type: (options && options.type) || "warn",
+        time: (options && options.time) || 1200,
+        mask: false
+      });
+      g_toast.show();
+      setTimeout(_ => {
+        g_toast = null;
+      }, (options && options.time) || 2000);
+    }
+  });
+};
+
 var username = "煜淞";
-var getUsername = function() {
-  return username;
-};
-var setUsername = function(user) {
-  username = user;
-};
+
 export default {
+  fontSizeList,
+  pickerlistForFontSize,
+  themeList,
+  pickerlistForTheme,
   booklist,
-  getUsername,
-  setUsername
+  username,
+  getUserBookList,
+  setUserBookList,
+  toast
 };
 </script>
 

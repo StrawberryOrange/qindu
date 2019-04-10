@@ -89,63 +89,9 @@ export default {
       isleave: false,
       isTop: false,
       // isleave_forS: false,
-      fontSizeList: [
-        { fontSize: 12 },
-        { fontSize: 14 },
-        { fontSize: 16 },
-        { fontSize: 18 },
-        { fontSize: 20 },
-        { fontSize: 22 },
-        { fontSize: 24 }
-      ],
+      fontSizeList: this.GLOBAL.fontSizeList,
       defaultFontSize: 16,
-      themeList: [
-        {
-          name: "默认",
-          style: {
-            body: {
-              color: "#000",
-              background: "#fff"
-            }
-          }
-        },
-        {
-          name: "护眼",
-          style: {
-            body: {
-              color: "#000",
-              background: "#ceeaba"
-            }
-          }
-        },
-        {
-          name: "夜间",
-          style: {
-            body: {
-              color: "#999",
-              background: "#000"
-            }
-          }
-        },
-        {
-          name: "纸质",
-          style: {
-            body: {
-              color: "#000",
-              background: "rgb(241, 236, 226)"
-            }
-          }
-        },
-        {
-          name: "自定义",
-          style: {
-            body: {
-              color: "#000",
-              background: "yellow"
-            }
-          }
-        }
-      ],
+      themeList: this.GLOBAL.themeList,
       defaultTheme: 3,
       // 图书是否处于可用状态
       bookAvailable: false,
@@ -196,7 +142,7 @@ export default {
         this.rendition.prev();
         setTimeout(() => {
           this.setFontSize(this.defaultFontSize);
-        }, 200);
+        }, 100);
       }
     },
     nextPage: function() {
@@ -204,7 +150,10 @@ export default {
         this.rendition.next();
         setTimeout(() => {
           this.setFontSize(this.defaultFontSize);
-        }, 200);
+        }, 100);
+        setTimeout(() => {
+          this.setFontSize(this.defaultFontSize);
+        }, 1000);
       }
     },
     toggleBar: function() {
@@ -261,6 +210,7 @@ export default {
   },
   mounted: function() {
     this.showEpub();
+    this.GLOBAL.mytoast();
   }
 };
 </script>
@@ -310,12 +260,15 @@ export default {
     width: 100%;
     z-index: 11;
     #mask-left {
+      flex-grow: 1;
       width: 120px;
     }
     #mask-center {
-      flex-grow: 1;
+      flex-grow: 2;
+      width: 120px;
     }
     #mask-right {
+      flex-grow: 1;
       width: 120px;
     }
   }

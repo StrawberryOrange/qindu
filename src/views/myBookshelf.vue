@@ -5,7 +5,7 @@
         <i class="icon iconfont iconleft" @click="back"></i>
       </div>
       <div class="title-wrapper">
-        <div>书籍商店</div>
+        <div>我的书架</div>
       </div>
     </div>
     <cube-scroll
@@ -14,32 +14,72 @@
       :style="{'height': (windowHeight - 50) + 'px'}"
     >
       <div class="book-wrapper">
-        <div class="book" v-for="(item,index) in list" :key="index" @click="addBook(index)">
+        <!-- <div
+          class="book"
+          v-for="(item,index) in list"
+          :key="index"
+          @click="deleteBook(index)"
+        >-->
+        <div
+          class="book"
+          v-for="(item,index) in list"
+          :key="index"
+          @touchstart="mytouchstart(index)"
+          @touchmove="mytouchmove(index)"
+          @touchend="mytouchend(index)"
+        >
           <img v-bind:src="item.img">
           <div>{{item.name}}</div>
         </div>
       </div>
-      <div class="tips">这里是书籍商店，点击添加一本至我的书架吧</div>
+      <div class="icon-wrapper" v-if="haveData">
+        <i class="icon iconfont iconwushuju"></i>
+      </div>
+      <div class="tips">这里是我的书架，你可以点击选择阅读书籍、长按删除书籍，或者从书籍商店添加/上传自己的书籍</div>
     </cube-scroll>
   </div>
 </template>
 <script>
+var timeOutEvent = 0;
 export default {
   data: function() {
     return {
-      list: this.GLOBAL.booklist,
+      list: this.GLOBAL.getUserBookList(),
       windowHeight: window.innerHeight
     };
+  },
+  computed: {
+    haveData: function() {
+      return this.list.length == 0 ? true : false;
+    }
   },
   methods: {
     back: function() {
       console.log("back");
       this.$router.go(-1);
     },
-    addBook: function(index) {
+    deleteBook: function(index) {
       // console.log("添加的书籍序号" + index);
-      this.GLOBAL.setUserBookList("add", index);
+      this.GLOBAL.setUserBookList("delete", index);
       // console.log(this.GLOBAL.getUserBookList());
+    },
+    mytouchstart: function(index) {
+      timeOutEvent = setTimeout(() => {
+        console.log("删除了！");
+        this.deleteBook(index)
+      }, 500);
+      return false;
+    },
+    mytouchend: function(index) {
+      clearTimeout(timeOutEvent);
+      // console.log('dianjishijian');
+      if (timeOutEvent != 0) {
+        console.log("切换至此书");
+      }
+    },
+    mytouchmove: function(index) {
+      clearTimeout(timeOutEvent);
+      timeOutEvent = 0;
     }
   }
 };
@@ -55,7 +95,7 @@ export default {
   background-color: #fff;
   display: flex;
   flex-direction: column;
-  z-index: 31;
+  z-index: 30;
   .title {
     position: relative;
     .icon-wrapper {
@@ -110,11 +150,19 @@ export default {
         }
       }
     }
+    .icon-wrapper {
+      text-align: center;
+      color: #b4c8e7;
+      margin: 200px auto 200px;
+      i {
+        font-size: 55px;
+      }
+    }
     .tips {
       color: #ccc;
-      margin: 20px auto 80px auto;
-      line-height: 18px;
+      margin: 20px 40px 80px 40px;
       text-align: center;
+      line-height: 18px;
       font-size: 12px;
     }
   }

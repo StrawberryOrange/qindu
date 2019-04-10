@@ -4,6 +4,8 @@ import Router from 'vue-router'
 import personal from '../views/personal'
 import none from '../views/none'
 import ebookStore from '../views/ebookStore'
+import myBookshelf from '../views/myBookshelf'
+import userTheme from '../views/userTheme'
 
 Vue.use(Router)
 
@@ -22,6 +24,16 @@ export default new Router({
           path: 'ebookStore',
           name: 'ebookStore',
           component: ebookStore
+        },
+        {
+          path: 'myBookshelf',
+          name: 'myBookshelf',
+          component: myBookshelf
+        },
+        {
+          path: 'userTheme',
+          name: 'userTheme',
+          component: userTheme
         }
       ]
     }
