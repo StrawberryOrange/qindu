@@ -97,7 +97,8 @@
 import Epub from "epubjs";
 // import { clearInterval } from "timers";
 // const ebookurl = "/static/8720238.epub";
-const ebookurl = "http://localhost/ebook/8720267.epub";
+// const ebookurl = "http://localhost/ebook/8720267.epub";
+const ebookurl = "http://chinacaring.club/static/8720267.epub";
 // const ebookurl = "http://140.143.24.96/epubBook/8720238.epub"
 
 export default {
