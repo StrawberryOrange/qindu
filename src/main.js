@@ -53,7 +53,7 @@ import App from './App'
 import router from './router'
 
 Vue.use(Epub)
-Vue.prototype.GLOBAL=Global
+Vue.prototype.GLOBAL = Global
 
 Vue.use(Button)
 Vue.use(Loading)

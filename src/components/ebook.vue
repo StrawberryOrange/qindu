@@ -25,7 +25,25 @@
         </div>
       </div>
       <div class="setting-wrapper" v-bind:class="{leaveForS:isTop}">
-        <div class="setting-progress" v-if="showTag === 0"></div>
+        <div class="setting-progress" v-if="showTag === 0">
+          <div class="progress-wrapper">
+            <input
+              class="progress"
+              type="range"
+              max="100"
+              min="0"
+              step="1"
+              @change="onProgressChange($event.target.value)"
+              @input="onProgressInput($event.target.value)"
+              :value="progress"
+              :disabled="!bookAvailable"
+              ref="progress"
+            >
+          </div>
+          <div class="text-wrapper">
+            <span>{{bookAvailable ? progress + '%' : '加载中...'}}</span>
+          </div>
+        </div>
         <div class="setting-theme" v-if="showTag === 1">
           <div class="theme-wrapper">
             <div
@@ -79,7 +97,7 @@
 import Epub from "epubjs";
 // import { clearInterval } from "timers";
 // const ebookurl = "/static/8720238.epub";
-const ebookurl = "http://localhost/ebook/8720238.epub";
+const ebookurl = "http://localhost/ebook/8720267.epub";
 // const ebookurl = "http://140.143.24.96/epubBook/8720238.epub"
 
 export default {
@@ -96,41 +114,11 @@ export default {
       // 图书是否处于可用状态
       bookAvailable: false,
       navigation: {},
-      showTag: -1
+      showTag: -1,
+      progress: 0
     };
   },
   methods: {
-    showEpub: function() {
-      this.book = new Epub(ebookurl);
-      this.rendition = this.book.renderTo("area", {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        method: "default"
-      });
-      this.rendition.display();
-      //theme对象
-      this.themes = this.rendition.themes;
-      // 设置默认字体
-      this.setFontSize(this.defaultFontSize);
-      // 注册主题
-      this.registerTheme();
-      // 设置默认主题
-      this.setTheme(this.defaultTheme);
-      // Book对象的钩子函数ready
-      this.book.ready
-        .then(() => {
-          this.navigation = this.book.navigation;
-          // 生成Locations对象
-          return this.book.locations.generate();
-        })
-        .then(result => {
-          // 保存locations对象
-          this.locations = this.book.locations;
-          // 标记电子书为解析完毕状态
-          this.bookAvailable = true;
-        });
-      // console.log(this.rendition)
-    },
     toPersonal: function() {
       this.$router.push({
         name: "personal"
@@ -172,8 +160,18 @@ export default {
         this.isTop = false;
       }
     },
-    selectProgress: function() {
-      console.log("selectProjress");
+    //松开进度条触发
+    onProgressChange: function(progress) {
+      console.log("selectProjress" + progress);
+      const percentage = progress / 100;
+      const location = percentage > 0 ? this.locations.cfiFromPercentage(percentage) : 0;
+      this.rendition.display(location)
+    },
+    //拖动进度条出发
+    onProgressInput: function(progress) {
+      this.progress = progress;
+      console.log("onProgressInput" + progress);
+      this.$refs.progress.style.backgroundSize = '${this.progress}% 100%';
     },
     // selectTheme: function() {
     //   console.log("selectTemes");
@@ -206,11 +204,52 @@ export default {
       if (this.themes) {
         this.themes.fontSize(fontSize + "px");
       }
-    }
+    },
+    showEpub: function() {
+      this.book = new Epub(ebookurl);
+      this.rendition = this.book.renderTo("area", {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        method: "default"
+      });
+      this.rendition.display();
+      //theme对象
+      this.themes = this.rendition.themes;
+      // 设置默认字体
+      this.setFontSize(this.defaultFontSize);
+      // 注册主题
+      this.registerTheme();
+      // 设置默认主题
+      this.setTheme(this.defaultTheme);
+      // Book对象的钩子函数ready
+      this.book.ready
+        .then(() => {
+          this.navigation = this.book.navigation;
+          // 生成Locations对象
+          return this.book.locations.generate();
+        })
+        .then(result => {
+          // 保存locations对象
+          this.locations = this.book.locations;
+          // 标记电子书为解析完毕状态
+          this.bookAvailable = true;
+          console.log('电子书解析完毕');
+        });
+      // console.log(this.rendition)
+    },
   },
   mounted: function() {
     this.showEpub();
-    this.GLOBAL.mytoast();
+    this.GLOBAL.myaxios({
+      url: "http://127.0.0.1:5000/login",
+      method: "POST",
+      data: {
+        username: "1518589418123"
+      },
+      success: function(res) {
+        console.log(res);
+      }
+    });
   }
 };
 </script>
@@ -310,8 +349,45 @@ export default {
       }
       .setting-progress {
         height: 60px;
-        background-color: red;
+        background-color: white;
         box-shadow: 0 -5px 5px rgba(102, 102, 102, 0.4);
+        .progress-wrapper {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 0 30px;
+          box-sizing: border-box;
+          .progress {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 2px;
+            background: -webkit-linear-gradient(#999, #999) no-repeat, #ddd;
+            background-size: 0 100%;
+            &:focus {
+              outline: none;
+            }
+            &::-webkit-slider-thumb {
+              -webkit-appearance: none;
+              height: 20px;
+              width: 20px;
+              border-radius: 50%;
+              background: white;
+              box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.15);
+              border: 1px solid #ddd;
+            }
+          }
+        }
+        .text-wrapper {
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          width: 100%;
+          color: #333;
+          font-size: 12px;
+          text-align: center;
+        }
       }
       .setting-theme {
         background-color: white;

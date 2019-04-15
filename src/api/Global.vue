@@ -1,4 +1,6 @@
 <script>
+import axios from 'axios'
+
 const PATH = "http://localhost/ebook/";
 
 const fontSizeList = [
@@ -178,6 +180,7 @@ const booklist = [
 
 var userBookList = [];
 var getUserBookList = () => userBookList;
+var username = "煜淞";
 var setUserBookList = (method, index) => {
   if (method == "add") {
     if (-1 == userBookList.indexOf(booklist[index])) {
@@ -223,7 +226,106 @@ var toast = function(options) {
   });
 };
 
-var username = "煜淞";
+
+/*
+全局axios请求方法
+使用方式this.GLOBAL.axios({
+  method: 'GET'
+  url:this.GLOBAL.AJAX_PATH + 'login'
+})
+self.$utils.caringRequest({
+        method: 'POST',
+        // url: self.$utils.getInterface('PATIENT_HISTORY'),
+        url: self.$utils.getInterface('PATH') + 'patient/history',
+        // headers: {
+        //   'content-type': 'application/json'
+        // },
+        data: {
+          id_card: self.id_card
+        },
+        success: function (res) {
+          console.log(res)
+          // self.visint = res.data.visint
+          self.history_haveData = true
+          if (res.code === 0) {
+            self.history = res.data
+            self.zyIndex = self.history.map(item => item.sn).indexOf(self.sn)
+          } else {
+            self.$utils.toast({
+              type: 'error',
+              message: '既往病史：' + res.message
+            })
+          }
+        }
+      })
+*/
+var myaxios = function(options) {
+  var self = this
+  setTimeout(() => {
+    var headers = {};
+    for (var i in options.headers || {}) {
+      headers[i] = options.headers[i];
+    }
+    if (!options.withoutToken) {
+      headers.Authorization = "Bearer " + '123123123123';
+    }
+    // 开始发送请求
+    // var self = this;
+    var method = options.method || options.type || "GET";
+    var data = options.data || null;
+    var url = options.url || "";
+    if (method === "GET" && data) {
+      let index = 0;
+      for (var key in data) {
+        url += (index === 0 ? "?" : "&") + key + "=" + data[key];
+        index++;
+      }
+    }
+    console.log(url);
+    axios({
+      method: method,
+      url: url,
+      asyn: true,
+      headers: headers,
+      data: data
+    })
+    .then(function(res) {
+      var successCallback = options.success || null;
+      if (typeof successCallback === "function") {
+        successCallback(res.data, res.headers);
+      }
+    })
+    .catch(function(xhr) {
+      var code = (xhr && xhr.responseJSON && xhr.responseJSON.code) || -1;
+      if (code === 30006) {
+        console.error("token失效");
+      } 
+      // else if (code === 30007) {
+        // console.error("token过期");
+        // 刷新token以后重试请求
+        // self.refreshTokenEvent(function() {
+        //   var retryCallback = self.caringRequest(options) || null;
+        //   if (typeof retryCallback === "function") {
+        //     retryCallback();
+        //   }
+        // });
+      // } 
+      else {
+        // 其他网络连接性错误，计划采用toast.............................
+        console.error(
+          (xhr && xhr.responseJSON && xhr.responseJSON.message) ||
+            "网络请求异常"
+        );
+        self.toast({
+          message:
+            (xhr && xhr.responseJSON && xhr.responseJSON.message) ||
+            "工号异常或您无权限，请联系信息科！"
+        });
+      }
+    });
+  }, Math.random() * 1000);
+};
+
 
 export default {
   fontSizeList,
@@ -234,7 +336,8 @@ export default {
   username,
   getUserBookList,
   setUserBookList,
-  toast
+  toast,
+  myaxios
 };
 </script>
 
