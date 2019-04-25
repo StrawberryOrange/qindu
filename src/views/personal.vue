@@ -8,12 +8,19 @@
         <div>个人中心</div>
       </div>
     </div>
-    <div class="header">
+
+    <div class="header" v-if="islogin">
       <div class="user-name">
         <span class="name">用户昵称</span>
         <span class="user">{{username}}</span>
       </div>
     </div>
+    <div class="header-nologin" v-if="!islogin">
+      <div class="header-content">
+        <div @click="reg_login">注册/登录</div>
+      </div>
+    </div>
+
     <div class="sitting">
       <div class="sitting-content" @click="toEbookStore">
         <span class="name">书籍商店</span>
@@ -64,30 +71,44 @@
         </span>
       </div>
     </div>
-    <div class="button-exit" @click="exit">
+    <div class="button-exit" @click="exit" v-if="islogin">
       <span>退出登录</span>
     </div>
     <div class="zhanwei"></div>
+    <reglogin @offreg_login="offreg_login" v-if="regLogShow"></reglogin>
     <router-view></router-view>
   </div>
 </template>
 
 <script>
+var self=this
+import reglogin from "../components/reg_login";
 export default {
+  components: {
+    reglogin
+  },
   data: function() {
     return {
-      username: this.GLOBAL.username
+      username: this.GLOBAL.username,
+      regLogShow: false
     };
   },
-  // mounted:function(){
-  //   for(item in this.GLOBAL.fontSizeList){
-  //     this.pickerlistForFontSize.push({
-  //       text:item.fontSize,
-  //       value:item.fontSize
-  //     })
-  //   }
-  //   console.log()
-  // },
+  computed: {
+    islogin: function() {
+      // console.log(this)
+      return this.GLOBAL.islogin;
+    }
+  },
+  mounted: function() {
+    // for(item in this.GLOBAL.fontSizeList){
+    //   this.pickerlistForFontSize.push({
+    //     text:item.fontSize,
+    //     value:item.fontSize
+    //   })
+    // }
+    
+    // console.log(this)
+  },
   methods: {
     setDefaultFontSize: function() {
       var self = this;
@@ -97,12 +118,11 @@ export default {
         data: [this.GLOBAL.pickerlistForFontSize],
         onSelect: function(selectedText) {
           self.GLOBAL.toast({
-            type: 'correct',
+            type: "correct",
             message: "默认字号" + selectedText.join(" ")
-          })
+          });
         }
       });
-      // }
       this.picker.show();
     },
     setDefaultTheme: function() {
@@ -113,9 +133,9 @@ export default {
         data: [this.GLOBAL.pickerlistForTheme],
         onSelect: function(selectedText) {
           self.GLOBAL.toast({
-            type: 'correct',
+            type: "correct",
             message: "默认主题：" + selectedText.join(" ")
-          })
+          });
         }
       });
       // }
@@ -123,6 +143,12 @@ export default {
     },
     back: function() {
       this.$router.back();
+    },
+    reg_login: function() {
+      this.regLogShow = true;
+    },
+    offreg_login: function() {
+      this.regLogShow = false;
     },
     setUserTheme: function() {
       this.$router.push({
@@ -141,6 +167,7 @@ export default {
     },
     exit: function() {
       console.log("退出登录~");
+      this.GLOBAL.islogin = false;
     }
   }
 };
@@ -194,13 +221,31 @@ export default {
       .name {
         margin-left: 20px;
         // font-size: 14px;
-        color: #999;
+        color: #666;
       }
 
       .user {
         margin-right: 20px;
         // font-size: 14px;
         color: 12px;
+      }
+    }
+  }
+  .header-nologin {
+    background-color: #fff;
+    border-top: solid #c8c7cc 0.5px;
+    border-bottom: solid #c8c7cc 0.5px;
+    .header-content {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      div {
+        color: rgb(234, 88, 92);
+        // border: solid 2px #aaaaaa;
+        padding: 10px;
+        box-shadow: 0 0 5px #ccc;
+        border-radius: 7px;
       }
     }
   }
@@ -223,13 +268,13 @@ export default {
 
       .name {
         margin-left: 20px;
-        color: #999;
+        color: #666;
       }
 
       .right {
         margin-right: 20px;
         // font-size: 14px;
-        color: #999;
+        color: #666;
       }
     }
   }

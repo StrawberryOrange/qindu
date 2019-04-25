@@ -178,8 +178,13 @@ const booklist = [
   }
 ];
 
+// 用户书单
 var userBookList = [];
+// 获取用户书单
 var getUserBookList = () => userBookList;
+// 用户登录态，false未登录，true已登陆，默认未登录
+var islogin = false;
+// 用户昵称
 var username = "煜淞";
 var setUserBookList = (method, index) => {
   if (method == "add") {

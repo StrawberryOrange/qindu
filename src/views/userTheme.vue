@@ -8,7 +8,7 @@
         <div>自定义主题</div>
       </div>
     </div>
-    <div class="preview" v-bind:style="{'color':item.color}"></div>
+    <!-- <div class="preview" v-bind:style="{'color':item.color}"></div> -->
     <div class="colorInput"></div>
     <div class="save"></div>
   </div>
