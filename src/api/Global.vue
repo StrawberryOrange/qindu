@@ -3,8 +3,8 @@ import axios from "axios";
 // import { URLSearchParams } from "url";
 import qs from "qs";
 
-// const PATH = "http://140.143.24.96:5000/";
-const PATH = "http://127.0.0.1:5000/";
+const PATH = "http://140.143.24.96:5000/";
+// const PATH = "http://127.0.0.1:5000/";
 
 const fontSizeList = [
   { fontSize: 12 },
