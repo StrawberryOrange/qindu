@@ -47,6 +47,33 @@ export default {
         return;
       }
       console.log("添加的书籍序号" + item.bookid);
+      self.GLOBAL.loadingShow();
+      self.GLOBAL.myaxios({
+        url: self.GLOBAL.PATH + "addbook",
+        method: "POST",
+        data: {
+          id: self.id,
+          bookid: item.bookid
+        },
+        success: function(res) {
+          if (res.code == "0") {
+            var data = res.data;
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "correct",
+              message: "添加成功",
+              time: 1000
+            });
+          } else {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "error",
+              message: "错误：" + res.message,
+              time: 1000
+            });
+          }
+        }
+      });
       // this.GLOBAL.setUserBookList("add", index);
       // console.log(this.GLOBAL.getUserBookList());
     }

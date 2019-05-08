@@ -22,14 +22,14 @@
         >-->
         <div
           class="book"
-          v-for="(item,index) in list"
+          v-for="(item,index) in userBookList"
           :key="index"
-          @touchstart="mytouchstart(index)"
-          @touchmove="mytouchmove(index)"
-          @touchend="mytouchend(index)"
+          @touchstart="mytouchstart(item)"
+          @touchmove="mytouchmove(item)"
+          @touchend="mytouchend(item)"
         >
-          <img v-bind:src="item.img">
-          <div>{{item.name}}</div>
+          <img v-bind:src="item.bookimg">
+          <div>{{item.bookname}}</div>
         </div>
       </div>
       <div class="icon-wrapper" v-if="haveData">
@@ -44,48 +44,152 @@ var timeOutEvent = 0;
 export default {
   data: function() {
     return {
+      flag: 0,
       id: "",
+      userBookIdList: "",
+      bookList: [],
       list: this.GLOBAL.getUserBookList(),
       windowHeight: window.innerHeight
     };
   },
   computed: {
     haveData: function() {
-      return this.list.length == 0 ? true : false;
+      return this.bookList.length == 0 ? true : false;
+    },
+    userBookList: function() {
+      var self = this;
+      var filtered = self.bookList.filter(function(item) {
+        return self.userBookIdList.indexOf(item.bookid) >= 0;
+      });
+      return filtered;
     }
   },
+  // watch: {
+  //   userBookList: function(val) {
+  //     console.log(val);
+  //   }
+  // },
   methods: {
     back: function() {
       console.log("back");
       this.$router.go(-1);
     },
-    deleteBook: function(index) {
-      // console.log("添加的书籍序号" + index);
-      this.GLOBAL.setUserBookList("delete", index);
+    chooseBook: function(item) {
+      console.log("chooseBook");
+    },
+    deleteBookConfirm: function(item) {
+      var self = this;
+      this.$createDialog({
+        type: "confirm",
+        content: "将从您的书架中删除此书，您也可以在商店中重新添加",
+        title: "确认删除？",
+        confirmBtn: {
+          text: "确定",
+          active: true
+        },
+        cancelBtn: {
+          text: "取消",
+          active: false
+        },
+        onConfirm: () => {
+          self.deleteBook(item);
+        },
+        onCancel: () => {}
+      }).show();
+    },
+    deleteBook: function(item) {
+      console.log(item);
+      var self = this;
+      self.GLOBAL.loadingShow();
+      self.GLOBAL.myaxios({
+        url: self.GLOBAL.PATH + "deletebook",
+        method: "POST",
+        data: {
+          id: self.id,
+          bookid: item.bookid
+        },
+        success: function(res) {
+          if (res.code == "0") {
+            console.log(res);
+            self.bookList.splice(self.bookList.indexOf(item));
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "correct",
+              message: "删除成功",
+              time: 1000
+            });
+          } else {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "error",
+              message: "错误：" + res.message,
+              time: 1000
+            });
+          }
+        }
+      });
       // console.log(this.GLOBAL.getUserBookList());
     },
-    mytouchstart: function(index) {
+    getUserBookIdList: function() {
+      var self = this;
+      // self.GLOBAL.loadingShow();
+      self.GLOBAL.myaxios({
+        url: self.GLOBAL.PATH + "userbook",
+        method: "GET",
+        data: {
+          id: self.id
+        },
+        success: function(res) {
+          if (self.flag == 1) self.GLOBAL.loadingHide();
+          else self.flag++;
+          if (res.code == "0") {
+            self.userBookIdList = res.data;
+          } else {
+            self.GLOBAL.toast({
+              type: "error",
+              message: "错误：" + res.message,
+              time: 1000
+            });
+          }
+        }
+      });
+    },
+    mytouchstart: function(item) {
       timeOutEvent = setTimeout(() => {
-        console.log("删除了！");
-        this.deleteBook(index);
+        this.deleteBookConfirm(item);
       }, 500);
       return false;
     },
-    mytouchend: function(index) {
+    mytouchend: function(item) {
       clearTimeout(timeOutEvent);
       // console.log('dianjishijian');
       if (timeOutEvent != 0) {
-        console.log("切换至此书");
+        this.chooseBook(item);
       }
     },
-    mytouchmove: function(index) {
+    mytouchmove: function(item) {
       clearTimeout(timeOutEvent);
       timeOutEvent = 0;
     }
   },
   mounted: function() {
+    var self = this;
+    self.GLOBAL.loadingShow();
     this.id = this.$route.query.id;
     console.log(this.$route.query.id);
+    this.GLOBAL.myaxios({
+      method: "GET",
+      url: self.GLOBAL.PATH + "book",
+      success: function(res) {
+        if (self.flag == 1) self.GLOBAL.loadingHide();
+        else self.flag++;
+        // console.log(res);
+        if (res.code == 0) {
+          self.bookList = res.data;
+        }
+      }
+    });
+    this.getUserBookIdList();
   }
 };
 </script>
