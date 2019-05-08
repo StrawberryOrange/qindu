@@ -87,7 +87,7 @@
         <div class="setting-mark" v-if="showTag === 3"></div>
       </div>
     </div>
-    <router-view></router-view>
+    <router-view @chooseBook="chooseBook"></router-view>
   </div>
 </template>
 <script>
@@ -98,7 +98,6 @@ import Epub from "epubjs";
 // import { clearInterval } from "timers";
 // const ebookurl = "/static/8720238.epub";
 // const ebookurl = "http://localhost/ebook/8720267.epub";
-const ebookurl = "http://140.143.24.96/static/8720267.epub";
 // const ebookurl = "http://140.143.24.96/epubBook/8720238.epub"
 
 export default {
@@ -107,6 +106,7 @@ export default {
     return {
       isleave: false,
       isTop: false,
+      ebookurl: "http://140.143.24.96/static/8720267.epub",
       // isleave_forS: false,
       fontSizeList: this.GLOBAL.fontSizeList,
       defaultFontSize: 16,
@@ -120,6 +120,11 @@ export default {
     };
   },
   methods: {
+    chooseBook: function(item) {
+      console.log("heiheihaha");
+      console.log(item);
+      this.showEpub(item.bookurl);
+    },
     toPersonal: function() {
       this.$router.push({
         name: "personal"
@@ -207,7 +212,7 @@ export default {
         this.themes.fontSize(fontSize + "px");
       }
     },
-    showEpub: function() {
+    showEpub: function(ebookurl) {
       this.book = new Epub(ebookurl);
       this.rendition = this.book.renderTo("area", {
         width: window.innerWidth,
@@ -241,7 +246,7 @@ export default {
     }
   },
   mounted: function() {
-    this.showEpub();
+    this.showEpub(this.ebookurl);
     // this.GLOBAL.myaxios({
     //   url: "http://127.0.0.1:5000/login",
     //   method: "POST",

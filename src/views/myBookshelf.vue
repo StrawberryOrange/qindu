@@ -75,7 +75,8 @@ export default {
       this.$router.go(-1);
     },
     chooseBook: function(item) {
-      console.log("chooseBook");
+      // console.log("chooseBook");
+      this.$emit("chooseBook", item);
     },
     deleteBookConfirm: function(item) {
       var self = this;

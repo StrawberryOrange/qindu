@@ -76,7 +76,7 @@
     </div>
     <div class="zhanwei"></div>
     <reglogin @offreg_login="offreg_login" v-if="regLogShow"></reglogin>
-    <router-view></router-view>
+    <router-view @chooseBook="chooseBook"></router-view>
   </div>
 </template>
 
@@ -117,6 +117,9 @@ export default {
     // }, 5000);
   },
   methods: {
+    chooseBook: function(item) {
+      this.$emit("chooseBook", item);
+    },
     setDefaultFontSize: function() {
       var self = this;
       if (self.id == "") {
