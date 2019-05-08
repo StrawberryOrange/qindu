@@ -11,8 +11,8 @@
 
     <div class="header" v-if="islogin">
       <div class="user-name">
-        <span class="name">用户昵称</span>
-        <span class="user">{{username}}</span>
+        <span class="name">用户账号</span>
+        <span class="user">{{id}}</span>
       </div>
     </div>
     <div class="header-nologin" v-if="!islogin">
@@ -81,7 +81,7 @@
 </template>
 
 <script>
-var self=this
+var self = this;
 import reglogin from "../components/reg_login";
 export default {
   components: {
@@ -89,57 +89,139 @@ export default {
   },
   data: function() {
     return {
-      username: this.GLOBAL.username,
-      regLogShow: false
+      id: "",
+      regLogShow: false,
+      islogin: this.GLOBAL.islogin
     };
   },
-  computed: {
-    islogin: function() {
-      // console.log(this)
-      return this.GLOBAL.islogin;
+  watch: {
+    id: function() {
+      console.log(this.id);
     }
   },
+  // computed: {
+  //   islogin: function() {
+  //     var self = this;
+  //     // console.log(this)
+  //     setInterval(function() {
+  //       console.log(self.GLOBAL.islogin);
+  //       return self.GLOBAL.islogin;
+  //     }, 1000);
+  //   }
+  // },
   mounted: function() {
-    // for(item in this.GLOBAL.fontSizeList){
-    //   this.pickerlistForFontSize.push({
-    //     text:item.fontSize,
-    //     value:item.fontSize
-    //   })
-    // }
-    
+    var self = this;
     // console.log(this)
+    // setInterval(function() {
+    //   console.log("wenjianxiade islogin" + self.islogin);
+    // }, 5000);
   },
   methods: {
     setDefaultFontSize: function() {
       var self = this;
+      if (self.id == "") {
+        self.GLOBAL.toast({
+          type: "error",
+          message: "请先登录！"
+        });
+        return;
+      }
       // if (!this.picker) {
       this.picker = this.$createPicker({
         title: "字号选择",
         data: [this.GLOBAL.pickerlistForFontSize],
-        onSelect: function(selectedText) {
-          self.GLOBAL.toast({
-            type: "correct",
-            message: "默认字号" + selectedText.join(" ")
-          });
+        onSelect: function(selectedVal, selectedIndex, selectedText) {
+          self.updateDefaultFontsize(selectedVal.join(" "));
+          // self.GLOBAL.toast({
+          //   type: "correct",
+          //   message: "默认字号" + selectedText.join(" ")
+          // });
         }
       });
       this.picker.show();
     },
+    updateDefaultFontsize: function(val) {
+      var self = this;
+      self.GLOBAL.loadingShow();
+      self.GLOBAL.myaxios({
+        method: "POST",
+        data: {
+          id: self.id,
+          fontsize: val
+        },
+        url: self.GLOBAL.PATH + "updatefontsize",
+        success: function(res) {
+          if (res.code == "0") {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "correct",
+              message: "修改成功",
+              time: 1000
+            });
+          } else {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "error",
+              message: res.message,
+              time: 1000
+            });
+          }
+        }
+      });
+    },
     setDefaultTheme: function() {
       var self = this;
+      if (self.id == "") {
+        self.GLOBAL.toast({
+          type: "error",
+          message: "请先登录！"
+        });
+        return;
+      }
       // if (!this.picker) {
       this.picker = this.$createPicker({
         title: "主题选择",
         data: [this.GLOBAL.pickerlistForTheme],
-        onSelect: function(selectedText) {
-          self.GLOBAL.toast({
-            type: "correct",
-            message: "默认主题：" + selectedText.join(" ")
-          });
+        onSelect: function(selectedVal, selectedIndex, selectedText) {
+          console.log(selectedVal.join(" "));
+          self.updateDefaultTheme(selectedVal.join(" "));
+          // self.GLOBAL.toast({
+          //   type: "correct",
+          //   message: "默认主题：" + selectedText.join(" ")
+          // });
         }
       });
       // }
       this.picker.show();
+    },
+    updateDefaultTheme: function(val) {
+      var self = this;
+      self.GLOBAL.loadingShow();
+      self.GLOBAL.myaxios({
+        method: "POST",
+        data: {
+          id: self.id,
+          theme: val
+        },
+        url: self.GLOBAL.PATH + "updatetheme",
+        success: function(res) {
+          if (res.code == "0") {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "correct",
+              message: "修改成功",
+              time: 1000
+            });
+          } else {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "error",
+              message: res.message,
+              time: 1000
+            });
+          }
+        }
+      });
     },
     back: function() {
       this.$router.back();
@@ -147,27 +229,54 @@ export default {
     reg_login: function() {
       this.regLogShow = true;
     },
-    offreg_login: function() {
+    offreg_login: function(id) {
+      if (id != -1) {
+        this.islogin = true;
+        this.id = id;
+      }
       this.regLogShow = false;
     },
     setUserTheme: function() {
+      var self = this;
+      if (self.id == "") {
+        self.GLOBAL.toast({
+          type: "error",
+          message: "请先登录！"
+        });
+        return;
+      }
       this.$router.push({
         name: "userTheme"
       });
     },
     toEbookStore: function() {
       this.$router.push({
-        name: "ebookStore"
+        name: "ebookStore",
+        query: {
+          id: this.id
+        }
       });
     },
     toMyBookShelf: function() {
+      var self = this;
+      if (self.id == "") {
+        self.GLOBAL.toast({
+          type: "error",
+          message: "请先登录！"
+        });
+        return;
+      }
       this.$router.push({
-        name: "myBookshelf"
+        name: "myBookshelf",
+        query: {
+          id: this.id
+        }
       });
     },
     exit: function() {
       console.log("退出登录~");
-      this.GLOBAL.islogin = false;
+      this.islogin = false;
+      this.id = "";
     }
   }
 };

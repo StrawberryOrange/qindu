@@ -1,7 +1,9 @@
 <script>
-import axios from 'axios'
+import axios from "axios";
+// import { URLSearchParams } from "url";
+import qs from "qs";
 
-const PATH = "http://localhost/ebook/";
+const PATH = "http://140.143.24.96:5000/";
 
 const fontSizeList = [
   { fontSize: 12 },
@@ -22,14 +24,15 @@ const pickerlistForFontSize = [
   { text: "24", value: "24" }
 ];
 const pickerlistForTheme = [
-  { text: "默认", value: "默认" },
-  { text: "护眼", value: "护眼" },
-  { text: "夜间", value: "夜间" },
-  { text: "纸质", value: "纸质" },
-  { text: "自定义", value: "自定义" }
+  { text: "默认", value: "0" },
+  { text: "护眼", value: "1" },
+  { text: "夜间", value: "2" },
+  { text: "纸质", value: "3" },
+  { text: "自定义", value: "4" }
 ];
 const themeList = [
   {
+    id: 0,
     name: "默认",
     style: {
       body: {
@@ -39,6 +42,7 @@ const themeList = [
     }
   },
   {
+    id: 1,
     name: "护眼",
     style: {
       body: {
@@ -48,6 +52,7 @@ const themeList = [
     }
   },
   {
+    id: 2,
     name: "夜间",
     style: {
       body: {
@@ -57,6 +62,7 @@ const themeList = [
     }
   },
   {
+    id: 3,
     name: "纸质",
     style: {
       body: {
@@ -66,6 +72,7 @@ const themeList = [
     }
   },
   {
+    id: 4,
     name: "自定义",
     style: {
       body: {
@@ -198,6 +205,28 @@ var setUserBookList = (method, index) => {
   }
 };
 
+/* 
+全局loading
+self.GLOBAL.loadingShow();
+self.GLOBAL.loadingHide();
+*/
+var loadingId = null;
+var loadingShow = function(options) {
+  setTimeout(_ => {
+    var vm = window.vm;
+    loadingId = vm.$createToast({
+      time: 0,
+      txt: (options && options.message) || "数据加载中",
+      mask: true
+    });
+    loadingId.show();
+  });
+};
+var loadingHide = function() {
+  if (loadingId) {
+    loadingId.hide();
+  }
+};
 
 /*
 全局toast
@@ -230,7 +259,6 @@ var toast = function(options) {
     }
   });
 };
-
 
 /*
 全局axios请求方法
@@ -265,19 +293,32 @@ self.$utils.caringRequest({
       })
 */
 var myaxios = function(options) {
-  var self = this
+  var self = this;
   setTimeout(() => {
     var headers = {};
     for (var i in options.headers || {}) {
       headers[i] = options.headers[i];
     }
-    if (!options.withoutToken) {
-      headers.Authorization = "Bearer " + '123123123123';
-    }
+    // if (!options.withoutToken) {
+    //   headers.Authorization = "Bearer " + '123123123123';
+    // }
     // 开始发送请求
     // var self = this;
     var method = options.method || options.type || "GET";
+    // if( method == "POST"){
+    //   headers={
+    //     'Content-Type' : "application/x-www-form-urlencoded"
+    //   }
+    // }
     var data = options.data || null;
+    // if (method == "POST") {
+    //   data = qs.stringify(data);
+    // }
+    // var data = new URLSearchParams();
+    // for (var i in options.data || {}) {
+    //   data.append(i, options.data[i]);
+    // }
+
     var url = options.url || "";
     if (method === "GET" && data) {
       let index = 0;
@@ -294,18 +335,18 @@ var myaxios = function(options) {
       headers: headers,
       data: data
     })
-    .then(function(res) {
-      var successCallback = options.success || null;
-      if (typeof successCallback === "function") {
-        successCallback(res.data, res.headers);
-      }
-    })
-    .catch(function(xhr) {
-      var code = (xhr && xhr.responseJSON && xhr.responseJSON.code) || -1;
-      if (code === 30006) {
-        console.error("token失效");
-      } 
-      // else if (code === 30007) {
+      .then(function(res) {
+        var successCallback = options.success || null;
+        if (typeof successCallback === "function") {
+          successCallback(res.data, res.headers);
+        }
+      })
+      .catch(function(xhr) {
+        // var code = (xhr && xhr.responseJSON && xhr.responseJSON.code) || -1;
+        // if (code === 30006) {
+        //   console.error("token失效");
+        // }
+        // else if (code === 30007) {
         // console.error("token过期");
         // 刷新token以后重试请求
         // self.refreshTokenEvent(function() {
@@ -314,23 +355,22 @@ var myaxios = function(options) {
         //     retryCallback();
         //   }
         // });
-      // } 
-      else {
-        // 其他网络连接性错误，计划采用toast.............................
-        console.error(
-          (xhr && xhr.responseJSON && xhr.responseJSON.message) ||
-            "网络请求异常"
-        );
-        self.toast({
-          message:
-            (xhr && xhr.responseJSON && xhr.responseJSON.message) ||
-            "工号异常或您无权限，请联系信息科！"
-        });
-      }
-    });
+        // }
+        // else {
+        //   // 其他网络连接性错误，计划采用toast.............................
+        //   console.error(
+        //     (xhr && xhr.responseJSON && xhr.responseJSON.message) ||
+        //       "网络请求异常"
+        //   );
+        //   self.toast({
+        //     message:
+        //       (xhr && xhr.responseJSON && xhr.responseJSON.message) ||
+        //       "工号异常或您无权限，请联系信息科！"
+        //   });
+        // }
+      });
   }, Math.random() * 1000);
 };
-
 
 export default {
   fontSizeList,
@@ -341,8 +381,12 @@ export default {
   username,
   getUserBookList,
   setUserBookList,
+  loadingShow,
+  loadingHide,
   toast,
-  myaxios
+  myaxios,
+  islogin,
+  PATH
 };
 </script>
 

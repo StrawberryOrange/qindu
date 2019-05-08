@@ -44,6 +44,7 @@ var timeOutEvent = 0;
 export default {
   data: function() {
     return {
+      id: "",
       list: this.GLOBAL.getUserBookList(),
       windowHeight: window.innerHeight
     };
@@ -66,7 +67,7 @@ export default {
     mytouchstart: function(index) {
       timeOutEvent = setTimeout(() => {
         console.log("删除了！");
-        this.deleteBook(index)
+        this.deleteBook(index);
       }, 500);
       return false;
     },
@@ -81,6 +82,10 @@ export default {
       clearTimeout(timeOutEvent);
       timeOutEvent = 0;
     }
+  },
+  mounted: function() {
+    this.id = this.$route.query.id;
+    console.log(this.$route.query.id);
   }
 };
 </script>

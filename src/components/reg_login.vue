@@ -1,7 +1,7 @@
 <template>
   <div id="reg_login">
     <div class="content">
-      <i class="icon iconfont iconguanbi" @click="offreg_login"></i>
+      <i class="icon iconfont iconguanbi" @click="offreg_login(-1)"></i>
       <div class="select-button">
         <div
           class="select login-button"
@@ -18,7 +18,6 @@
       <div class="input-wrapper register-wrapper" v-if="tag==0">
         <!-- <div class="register-title"></div> -->
         <input type="text" placeholder="登陆账户名" class="id" v-model="reg_id">
-        <input type="text" placeholder="昵称" class="name" v-model="reg_name">
         <input type="password" placeholder="密码" class="password" v-model="reg_pw">
         <div class="submit-wrapper" v-bind:class="{'activated':reg_activated}" @click="register">
           <div>注册</div>
@@ -41,7 +40,6 @@ export default {
     return {
       tag: 1,
       reg_id: "",
-      reg_name: "",
       reg_pw: "",
       log_id: "",
       log_pw: ""
@@ -49,25 +47,83 @@ export default {
   },
   computed: {
     reg_activated: function() {
-      // return this.reg_id.trim() && this.reg_name.trim() && this.reg_pw.trim();
-      return true
+      return this.reg_id.trim() && this.reg_pw.trim();
+      // return true;
     },
     log_activated: function() {
-      // return this.log_id.trim() && this.log_pw.trim();
-      return true
+      return this.log_id.trim() && this.log_pw.trim();
+      // return true;
     }
   },
   methods: {
     login: function() {
+      var self = this;
       if (this.log_activated) {
-        console.log("keyidenlu");
-        this.GLOBAL.islogin = true;
-        console.log(this.GLOBAL.islogin)
+        this.GLOBAL.loadingShow();
+        // console.log(self.GLOBAL.PATH);
+        this.GLOBAL.myaxios({
+          method: "POST",
+          url: self.GLOBAL.PATH + "login",
+          data: {
+            id: self.log_id,
+            password: self.log_pw
+          },
+          success: function(res) {
+            if (res.code == "0") {
+              var data = res.data;
+              console.log("chengongle?");
+              self.offreg_login(data.id);
+              self.GLOBAL.loadingHide();
+              self.GLOBAL.toast({
+                type: "correct",
+                message: "登陆成功",
+                time: 1000
+              });
+            } else {
+              self.GLOBAL.loadingHide();
+              self.GLOBAL.toast({
+                type: "error",
+                message: "用户名或密码错误！",
+                time: 1000
+              });
+            }
+          }
+        });
       }
     },
     register: function() {
+      var self = this;
       if (this.reg_activated) {
         console.log("keyizhuce");
+        self.GLOBAL.loadingShow();
+        // console.log(self.GLOBAL.PATH);
+        this.GLOBAL.myaxios({
+          method: "POST",
+          url: self.GLOBAL.PATH + "register",
+          data: {
+            id: self.reg_id,
+            password: self.reg_pw
+          },
+          success: function(res) {
+            if (res.code == "0") {
+              var data = res.data;
+              // self.offreg_login(data.id);
+              self.GLOBAL.loadingHide();
+              self.GLOBAL.toast({
+                type: "correct",
+                message: "注册成功",
+                time: 3000
+              });
+            } else {
+              self.GLOBAL.loadingHide();
+              self.GLOBAL.toast({
+                type: "error",
+                message: res.message,
+                time: 1000
+              });
+            }
+          }
+        });
       }
     },
     chooseregister: function() {
@@ -76,8 +132,8 @@ export default {
     chooselogin: function() {
       this.tag = 1;
     },
-    offreg_login: function() {
-      this.$emit("offreg_login");
+    offreg_login: function(name) {
+      this.$emit("offreg_login", name);
     }
   }
 };
@@ -125,13 +181,13 @@ export default {
     }
     .input-wrapper {
       // flex-grow: 1;
-      margin-top: 50px;
+      margin-top: 10px;
       height: 200px;
       display: flex;
       flex-direction: column;
       input {
         border-bottom: solid 1px #ddd;
-        margin: 10px;
+        margin: 16px 10px;
         height: 22px;
         outline: none;
         &::-webkit-input-placeholder {
@@ -141,8 +197,9 @@ export default {
       }
 
       .submit-wrapper {
-        width: 266px;
-        height: 60px;
+        margin: 25px 20px;
+        width: 226px;
+        height: 40px;
         background-color: rgb(183, 187, 191);
         display: flex;
         justify-content: center;
@@ -153,7 +210,7 @@ export default {
         }
       }
       .activated {
-        background: rgb(22,194,194);
+        background: rgb(22, 194, 194);
       }
     }
   }

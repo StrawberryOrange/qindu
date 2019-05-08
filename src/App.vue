@@ -1,17 +1,17 @@
 <template>
   <div id="app">
-    <ebook/>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import ebook from './components/ebook.vue'
+// import ebook from './components/ebook.vue'
 export default {
-  name: 'app',
+  name: "app",
   components: {
-    ebook
+    // ebook
   }
-}
+};
 </script>
 
 <style>

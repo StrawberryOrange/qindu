@@ -14,9 +14,9 @@
       :style="{'height': (windowHeight - 50) + 'px'}"
     >
       <div class="book-wrapper">
-        <div class="book" v-for="(item,index) in list" :key="index" @click="addBook(index)">
-          <img v-bind:src="item.img">
-          <div>{{item.name}}</div>
+        <div class="book" v-for="(item,index) in list" :key="index" @click="addBook(item)">
+          <img v-bind:src="item.bookimg">
+          <div>{{item.bookname}}</div>
         </div>
       </div>
       <div class="tips">这里是书籍商店，点击添加一本至我的书架吧</div>
@@ -27,7 +27,8 @@
 export default {
   data: function() {
     return {
-      list: this.GLOBAL.booklist,
+      id: "",
+      list: [],
       windowHeight: window.innerHeight
     };
   },
@@ -36,11 +37,36 @@ export default {
       console.log("back");
       this.$router.go(-1);
     },
-    addBook: function(index) {
-      // console.log("添加的书籍序号" + index);
-      this.GLOBAL.setUserBookList("add", index);
+    addBook: function(item) {
+      var self = this;
+      if (this.id == "") {
+        self.GLOBAL.toast({
+          type: "error",
+          message: "请先登录！"
+        });
+        return;
+      }
+      console.log("添加的书籍序号" + item.bookid);
+      // this.GLOBAL.setUserBookList("add", index);
       // console.log(this.GLOBAL.getUserBookList());
     }
+  },
+  mounted: function() {
+    var self = this;
+    self.GLOBAL.loadingShow();
+    this.id = this.$route.query.id;
+    console.log(this.$route.query.id);
+    this.GLOBAL.myaxios({
+      method: "GET",
+      url: self.GLOBAL.PATH + "book",
+      success: function(res) {
+        self.GLOBAL.loadingHide();
+        console.log(res);
+        if (res.code == 0) {
+          self.list = res.data;
+        }
+      }
+    });
   }
 };
 </script>
@@ -93,6 +119,7 @@ export default {
         border: 1px solid #ccc;
         background-color: #f8f8f8;
         box-shadow: 0 0 5px rgba(102, 102, 102, 0.4);
+        border-radius: 3px;
         width: 100px;
         height: 140px;
         //   border: solid 1px #111;

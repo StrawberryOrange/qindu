@@ -165,14 +165,15 @@ export default {
     onProgressChange: function(progress) {
       console.log("selectProjress" + progress);
       const percentage = progress / 100;
-      const location = percentage > 0 ? this.locations.cfiFromPercentage(percentage) : 0;
-      this.rendition.display(location)
+      const location =
+        percentage > 0 ? this.locations.cfiFromPercentage(percentage) : 0;
+      this.rendition.display(location);
     },
     //拖动进度条出发
     onProgressInput: function(progress) {
       this.progress = progress;
       console.log("onProgressInput" + progress);
-      this.$refs.progress.style.backgroundSize = '${this.progress}% 100%';
+      this.$refs.progress.style.backgroundSize = "${this.progress}% 100%";
     },
     // selectTheme: function() {
     //   console.log("selectTemes");
@@ -234,30 +235,28 @@ export default {
           this.locations = this.book.locations;
           // 标记电子书为解析完毕状态
           this.bookAvailable = true;
-          console.log('电子书解析完毕');
+          console.log("电子书解析完毕");
         });
       // console.log(this.rendition)
-    },
+    }
   },
   mounted: function() {
     this.showEpub();
-    this.GLOBAL.myaxios({
-      url: "http://127.0.0.1:5000/login",
-      method: "POST",
-      data: {
-        username: "1518589418123"
-      },
-      success: function(res) {
-        console.log(res);
-      }
-    });
+    // this.GLOBAL.myaxios({
+    //   url: "http://127.0.0.1:5000/login",
+    //   method: "POST",
+    //   data: {
+    //     username: "1518589418123"
+    //   },
+    //   success: function(res) {
+    //     console.log(res);
+    //   }
+    // });
   }
 };
 </script>
 
 <style lang="scss">
-// @import url("//at.alicdn.com/t/font_1101334_gp70avx2014.css");
-
 #app {
   position: relative;
   #personal {
