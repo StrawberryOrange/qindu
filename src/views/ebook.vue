@@ -106,7 +106,7 @@ export default {
     return {
       isleave: false,
       isTop: false,
-      ebookurl: "http://140.143.24.96/static/8720267.epub",
+      bookurl: "http://140.143.24.96/static/8720267.epub",
       // isleave_forS: false,
       fontSizeList: this.GLOBAL.fontSizeList,
       defaultFontSize: 16,
@@ -116,18 +116,22 @@ export default {
       bookAvailable: false,
       navigation: {},
       showTag: -1,
-      progress: 0
+      progress: 0,
+      user: ""
     };
   },
   methods: {
     chooseBook: function(item) {
       console.log("heiheihaha");
       console.log(item);
-      this.showEpub(item.bookurl);
+      this.$router.go(0);
     },
     toPersonal: function() {
       this.$router.push({
-        name: "personal"
+        name: "personal",
+        query: {
+          id: this.user
+        }
       });
       // console.log("!23");
     },
@@ -243,10 +247,46 @@ export default {
           console.log("电子书解析完毕");
         });
       // console.log(this.rendition)
+    },
+    getUserInfo: function() {
+      var self = this;
+      self.GLOBAL.myaxios({
+        method: "GET",
+        data: {
+          id: self.user
+        },
+        url: self.GLOBAL.PATH + "readinginfo",
+        success: function(res) {
+          if (res.code == "0") {
+            console.log(res);
+            // self.GLOBAL.loadingHide();
+            // self.GLOBAL.toast({
+            //   type: "correct",
+            //   message: "修改成功",
+            //   time: 1000
+            // });
+          } else {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "error",
+              message: "获取个人信息失败：" + res.message,
+              time: 1000
+            });
+          }
+        }
+      });
     }
   },
   mounted: function() {
-    this.showEpub(this.ebookurl);
+    var user = window.localStorage.getItem("user");
+    if (user) {
+      this.user = user;
+      this.bookurl = window.localStorage.getItem("bookurl")
+        ? window.localStorage.getItem("bookurl")
+        : this.bookurl;
+      this.getUserInfo();
+    }
+    this.showEpub(this.bookurl);
     // this.GLOBAL.myaxios({
     //   url: "http://127.0.0.1:5000/login",
     //   method: "POST",

@@ -74,9 +74,58 @@ export default {
       console.log("back");
       this.$router.go(-1);
     },
+    chooseBookConfirm: function(item) {
+      var self = this;
+      this.$createDialog({
+        type: "confirm",
+        content: "正在阅读的书籍将会切换为此书",
+        title: "确认？",
+        confirmBtn: {
+          text: "确定",
+          active: true
+        },
+        cancelBtn: {
+          text: "取消",
+          active: false
+        },
+        onConfirm: () => {
+          self.chooseBook(item);
+          // self.$router.go(-2);
+        },
+        onCancel: () => {}
+      }).show();
+    },
     chooseBook: function(item) {
+      var self = this;
       // console.log("chooseBook");
-      this.$emit("chooseBook", item);
+      self.GLOBAL.myaxios({
+        url: self.GLOBAL.PATH + "updatebookurl",
+        method: "POST",
+        data: {
+          id: self.id,
+          bookurl: item.bookurl
+        },
+        success: function(res) {
+          if (res.code == "0") {
+            console.log(res);
+            self.GLOBAL.loadingHide();
+            window.localStorage.setItem("bookurl", item.bookurl);
+            self.GLOBAL.toast({
+              type: "correct",
+              message: "切换成功",
+              time: 1000
+            });
+            this.$emit("chooseBook", item);
+          } else {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "error",
+              message: "错误：" + res.message,
+              time: 1000
+            });
+          }
+        }
+      });
     },
     deleteBookConfirm: function(item) {
       var self = this;
@@ -165,7 +214,7 @@ export default {
       clearTimeout(timeOutEvent);
       // console.log('dianjishijian');
       if (timeOutEvent != 0) {
-        this.chooseBook(item);
+        this.chooseBookConfirm(item);
       }
     },
     mytouchmove: function(item) {

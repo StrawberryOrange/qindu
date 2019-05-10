@@ -91,7 +91,7 @@ export default {
     return {
       id: "",
       regLogShow: false,
-      islogin: this.GLOBAL.islogin
+      islogin: false
     };
   },
   watch: {
@@ -111,6 +111,10 @@ export default {
   // },
   mounted: function() {
     var self = this;
+    if (this.$route.query.id) {
+      self.islogin = true;
+      self.id = self.$route.query.id;
+    }
     // console.log(this)
     // setInterval(function() {
     //   console.log("wenjianxiade islogin" + self.islogin);
@@ -278,6 +282,7 @@ export default {
     },
     exit: function() {
       console.log("退出登录~");
+      window.localStorage.setItem("user", "");
       this.islogin = false;
       this.id = "";
     }

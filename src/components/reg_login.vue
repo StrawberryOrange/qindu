@@ -71,7 +71,8 @@ export default {
           success: function(res) {
             if (res.code == "0") {
               var data = res.data;
-              console.log("chengongle?");
+              console.log(data);
+              window.localStorage.setItem("user", data.id);
               self.offreg_login(data.id);
               self.GLOBAL.loadingHide();
               self.GLOBAL.toast({
