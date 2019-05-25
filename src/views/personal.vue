@@ -55,16 +55,16 @@
           <i class="icon iconfont iconright1"></i>
         </span>
       </div>
-      <div class="sitting-content" @click="setUserTheme">
+      <!-- <div class="sitting-content" @click="setUserTheme">
         <span class="name">自定义主题</span>
         <span class="right">
           <i class="icon iconfont iconright1"></i>
         </span>
-      </div>
+      </div>-->
     </div>
 
     <div class="sitting">
-      <div class="sitting-content" hover-class="navigator-hover">
+      <div class="sitting-content" hover-class="navigator-hover" @click="setPassword">
         <span class="name">账户设置</span>
         <span class="right">
           <i class="icon iconfont iconright1"></i>
@@ -122,6 +122,7 @@ export default {
   },
   methods: {
     chooseBook: function(item) {
+      console.log("chuandaozhelilailo");
       this.$emit("chooseBook", item);
     },
     setDefaultFontSize: function() {
@@ -176,6 +177,7 @@ export default {
         }
       });
     },
+
     setDefaultTheme: function() {
       var self = this;
       if (self.id == "") {
@@ -229,6 +231,9 @@ export default {
           }
         }
       });
+    },
+    setPassword: function() {
+      console.log("heiheihaha");
     },
     back: function() {
       this.$router.back();

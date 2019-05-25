@@ -80,6 +80,7 @@ export default {
                 message: "登陆成功",
                 time: 1000
               });
+              self.$router.go(0);
             } else {
               self.GLOBAL.loadingHide();
               self.GLOBAL.toast({

@@ -115,7 +115,8 @@ export default {
               message: "切换成功",
               time: 1000
             });
-            this.$emit("chooseBook", item);
+            // self.$router.go(-2);
+            self.$emit("chooseBook", item);
           } else {
             self.GLOBAL.loadingHide();
             self.GLOBAL.toast({
@@ -161,13 +162,15 @@ export default {
         success: function(res) {
           if (res.code == "0") {
             console.log(res);
-            self.bookList.splice(self.bookList.indexOf(item));
-            self.GLOBAL.loadingHide();
+            // self.bookList.splice(self.bookList.indexOf(item));
+            // self.$router.go(0);
+            // self.GLOBAL.loadingHide();
             self.GLOBAL.toast({
               type: "correct",
               message: "删除成功",
               time: 1000
             });
+            self.getUserBookIdList();
           } else {
             self.GLOBAL.loadingHide();
             self.GLOBAL.toast({

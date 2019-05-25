@@ -124,7 +124,10 @@ export default {
     chooseBook: function(item) {
       console.log("heiheihaha");
       console.log(item);
-      this.$router.go(0);
+      // this.$router.go(-2);
+      // this.$router.go(0);
+      window.location.href = window.location.href.split("#")[0] + "#/ebook";
+      // console.log(window.location.href.split("#")[0] + "#/ebook");
     },
     toPersonal: function() {
       this.$router.push({
@@ -168,9 +171,57 @@ export default {
         this.isTop = true;
       } else {
         this.isTop = false;
+        console.log("baocunanniu~~biubiubiu");
+        this.addReadingProgress();
       }
     },
-    //松开进度条触发
+    addReadingProgress: function() {
+      var self = this;
+      self
+        .$createDialog({
+          type: "prompt",
+          title: "上传书签内容",
+          content:
+            "在这里输入书签提示，您将在下次登陆时看到书签提示，以帮助您快速跳转至上次阅读点。",
+          onConfirm: function(e, value) {
+            console.log(value);
+            self.updateReadingProgress(value);
+          }
+        })
+        .show();
+    },
+    updateReadingProgress: function(value) {
+      var self = this;
+      self.GLOBAL.loadingShow();
+      self.GLOBAL.myaxios({
+        method: "POST",
+        data: {
+          id: self.user,
+          progress: value
+        },
+        url: self.GLOBAL.PATH + "updateprogress",
+        success: function(res) {
+          if (res.code == "0") {
+            console.log(res);
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "correct",
+              message: "上传成功",
+              time: 1000
+            });
+          } else {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "error",
+              message: "上传书签内容失败：" + res.message,
+              time: 1000
+            });
+            self.$router.go(0);
+          }
+        }
+      });
+    },
+    // 松开进度条触发
     onProgressChange: function(progress) {
       console.log("selectProjress" + progress);
       const percentage = progress / 100;
@@ -178,22 +229,12 @@ export default {
         percentage > 0 ? this.locations.cfiFromPercentage(percentage) : 0;
       this.rendition.display(location);
     },
-    //拖动进度条出发
+    // 拖动进度条出发
     onProgressInput: function(progress) {
       this.progress = progress;
       console.log("onProgressInput" + progress);
       this.$refs.progress.style.backgroundSize = "${this.progress}% 100%";
     },
-    // selectTheme: function() {
-    //   console.log("selectTemes");
-    // },
-    // selectFontsize: function() {
-    //   console.log("selecfFontsize");
-    // },
-    // addMark: function() {
-    //   console.log("addMark");
-    // },
-    //跳转
     jumpTo(href) {
       this.rendition.display(href);
       // this.hideTitleAndMenu()
@@ -267,11 +308,13 @@ export default {
             // });
           } else {
             self.GLOBAL.loadingHide();
+            window.localStorage.setItem("user", "");
             self.GLOBAL.toast({
               type: "error",
-              message: "获取个人信息失败：" + res.message,
+              message: "获取个人信息失败：" + res.message + ",请重新登陆！",
               time: 1000
             });
+            self.$router.go(0);
           }
         }
       });
