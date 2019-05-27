@@ -47,11 +47,17 @@ export default {
   },
   computed: {
     reg_activated: function() {
-      return this.reg_id.trim() && this.reg_pw.trim();
+      return (
+        this.checkInput(this.reg_id.trim()) &&
+        this.checkInput(this.reg_pw.trim())
+      );
       // return true;
     },
     log_activated: function() {
-      return this.log_id.trim() && this.log_pw.trim();
+      return (
+        this.checkInput(this.log_id.trim()) &&
+        this.checkInput(this.log_pw.trim())
+      );
       // return true;
     }
   },
@@ -73,14 +79,17 @@ export default {
               var data = res.data;
               console.log(data);
               window.localStorage.setItem("user", data.id);
-              self.offreg_login(data.id);
+              // window.location.href =
+              //   window.location.href.split("#")[0] + "#/ebook";
+              // window.location.reload();
               self.GLOBAL.loadingHide();
               self.GLOBAL.toast({
                 type: "correct",
                 message: "登陆成功",
                 time: 1000
               });
-              self.$router.go(0);
+              // self.$router.go(-1);
+              self.offreg_login(data.id);
             } else {
               self.GLOBAL.loadingHide();
               self.GLOBAL.toast({
@@ -90,6 +99,11 @@ export default {
               });
             }
           }
+        });
+      } else {
+        self.GLOBAL.toast({
+          type: "error",
+          message: "id与密码长度需要大于6,且只能为字母和数字"
         });
       }
     },
@@ -126,6 +140,11 @@ export default {
             }
           }
         });
+      } else {
+        self.GLOBAL.toast({
+          type: "error",
+          message: "id与密码长度需要大于6,且只能为字母和数字"
+        });
       }
     },
     chooseregister: function() {
@@ -136,6 +155,21 @@ export default {
     },
     offreg_login: function(name) {
       this.$emit("offreg_login", name);
+    },
+    checkInput: function(id) {
+      var str = id;
+      if (str.length < 6) return false;
+      for (let i = 0; i < str.length; i++) {
+        // console.log(str.substr(i, 1));
+        if (
+          !(
+            (str.substr(i, 1) >= "a" && str.substr(i, 1) <= "z") ||
+            (str.substr(i, 1) >= 0 && str.substr(i, 1) <= 9)
+          )
+        )
+          return false;
+      }
+      return true;
     }
   }
 };

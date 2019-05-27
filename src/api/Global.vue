@@ -3,8 +3,8 @@ import axios from "axios";
 // import { URLSearchParams } from "url";
 import qs from "qs";
 
-// const PATH = "http://140.143.24.96:5000/";
-const PATH = "http://127.0.0.1:5000/";
+const PATH = "http://140.143.24.96:5000/";
+// const PATH = "http://127.0.0.1:5000/";
 
 const fontSizeList = [
   { fontSize: 12 },
@@ -28,8 +28,8 @@ const pickerlistForTheme = [
   { text: "默认", value: "0" },
   { text: "护眼", value: "1" },
   { text: "夜间", value: "2" },
-  { text: "纸质", value: "3" },
-  { text: "自定义", value: "4" }
+  { text: "纸质", value: "3" }
+  // { text: "自定义", value: "4" }
 ];
 const themeList = [
   {
@@ -71,17 +71,17 @@ const themeList = [
         background: "rgb(241, 236, 226)"
       }
     }
-  },
-  {
-    id: 4,
-    name: "自定义",
-    style: {
-      body: {
-        color: "#000",
-        background: "yellow"
-      }
-    }
   }
+  // {
+  //   id: 4,
+  //   name: "自定义",
+  //   style: {
+  //     body: {
+  //       color: "#000",
+  //       background: "yellow"
+  //     }
+  //   }
+  // }
 ];
 const booklist = [
   {

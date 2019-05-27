@@ -87,7 +87,7 @@
         <div class="setting-mark" v-if="showTag === 3"></div>
       </div>
     </div>
-    <router-view @chooseBook="chooseBook"></router-view>
+    <router-view @chooseBook="chooseBook" @offreg_login="offreg_login"></router-view>
   </div>
 </template>
 <script>
@@ -106,29 +106,33 @@ export default {
     return {
       isleave: false,
       isTop: false,
-      bookurl: "http://140.143.24.96/static/8720267.epub",
+      bookurl: "http://140.143.24.96/static/8720000.epub",
       // isleave_forS: false,
       fontSizeList: this.GLOBAL.fontSizeList,
       defaultFontSize: 16,
+      userDefaultFontSize: "",
       themeList: this.GLOBAL.themeList,
       defaultTheme: 3,
+      userDefaultTheme: "",
       // 图书是否处于可用状态
       bookAvailable: false,
       navigation: {},
       showTag: -1,
       progress: 0,
-      user: ""
+      user: "",
+      userInfo: {}
     };
   },
+  watch: {
+    userInfo: function() {
+      if (this.rendition && this.userInfo.default_fontsize) {
+        setTimeout(() => {
+          this.setFontSize(this.userInfo.default_fontsize);
+        }, 100);
+      }
+    }
+  },
   methods: {
-    chooseBook: function(item) {
-      console.log("heiheihaha");
-      console.log(item);
-      // this.$router.go(-2);
-      // this.$router.go(0);
-      window.location.href = window.location.href.split("#")[0] + "#/ebook";
-      // console.log(window.location.href.split("#")[0] + "#/ebook");
-    },
     toPersonal: function() {
       this.$router.push({
         name: "personal",
@@ -291,6 +295,7 @@ export default {
     },
     getUserInfo: function() {
       var self = this;
+      this.GLOBAL.loadingShow();
       self.GLOBAL.myaxios({
         method: "GET",
         data: {
@@ -299,13 +304,25 @@ export default {
         url: self.GLOBAL.PATH + "readinginfo",
         success: function(res) {
           if (res.code == "0") {
-            console.log(res);
-            // self.GLOBAL.loadingHide();
-            // self.GLOBAL.toast({
-            //   type: "correct",
-            //   message: "修改成功",
-            //   time: 1000
-            // });
+            // let data = res.data;
+            self.GLOBAL.loadingHide();
+            // console.log("获取到了个人信息，如下");
+            self.userInfo = res.data;
+            console.log(res.data);
+            // if (res.data.default_fontsize)
+            //   self.setFontSize(res.data.default_fontsize);
+            if (res.data.progress !== "") {
+              self
+                .$createDialog({
+                  type: "alert",
+                  title: "欢迎回来",
+                  content: "上次进度：" + res.data.progress,
+                  icon: "cubeic-alert"
+                })
+                .show();
+            }
+            console.log(self.bookurl);
+            self.showEpub(self.bookurl);
           } else {
             self.GLOBAL.loadingHide();
             window.localStorage.setItem("user", "");
@@ -318,6 +335,21 @@ export default {
           }
         }
       });
+    },
+    offreg_login: function(id) {
+      window.location.href = window.location.href.split("#")[0] + "#/ebook";
+      window.location.reload();
+      // console.log("看看是不是刷新了呢");
+      // alert(id);
+    },
+    chooseBook: function(item) {
+      this.offreg_login("1");
+      // console.log("heiheihaha");
+      // console.log(item);
+      // this.$router.go(-2);
+      // this.$router.go(0);
+      // window.location.href = window.location.href.split("#")[0] + "#/ebook";
+      // console.log(window.location.href.split("#")[0] + "#/ebook");
     }
   },
   mounted: function() {
@@ -328,8 +360,10 @@ export default {
         ? window.localStorage.getItem("bookurl")
         : this.bookurl;
       this.getUserInfo();
+    } else {
+      this.showEpub(this.bookurl);
     }
-    this.showEpub(this.bookurl);
+    // this.showEpub(this.bookurl);
     // this.GLOBAL.myaxios({
     //   url: "http://127.0.0.1:5000/login",
     //   method: "POST",

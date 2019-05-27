@@ -64,7 +64,7 @@
     </div>
 
     <div class="sitting">
-      <div class="sitting-content" hover-class="navigator-hover" @click="setPassword">
+      <div class="sitting-content" hover-class="navigator-hover" @click="setUserInfo">
         <span class="name">账户设置</span>
         <span class="right">
           <i class="icon iconfont iconright1"></i>
@@ -76,6 +76,7 @@
     </div>
     <div class="zhanwei"></div>
     <reglogin @offreg_login="offreg_login" v-if="regLogShow"></reglogin>
+    <setPassword @offSetPassword="offSetPassword" v-bind:id="id" v-if="setPasswordShow"></setPassword>
     <router-view @chooseBook="chooseBook"></router-view>
   </div>
 </template>
@@ -83,15 +84,20 @@
 <script>
 var self = this;
 import reglogin from "../components/reg_login";
+import setPassword from "../components/setPassword";
+import { setTimeout } from "timers";
 export default {
   components: {
-    reglogin
+    reglogin,
+    setPassword
   },
   data: function() {
     return {
       id: "",
       regLogShow: false,
-      islogin: false
+      islogin: false,
+      password: "",
+      setPasswordShow: false
     };
   },
   watch: {
@@ -115,14 +121,10 @@ export default {
       self.islogin = true;
       self.id = self.$route.query.id;
     }
-    // console.log(this)
-    // setInterval(function() {
-    //   console.log("wenjianxiade islogin" + self.islogin);
-    // }, 5000);
   },
   methods: {
     chooseBook: function(item) {
-      console.log("chuandaozhelilailo");
+      // console.log("chuandaozhelilailo");
       this.$emit("chooseBook", item);
     },
     setDefaultFontSize: function() {
@@ -232,8 +234,67 @@ export default {
         }
       });
     },
-    setPassword: function() {
+    setUserInfo: function() {
+      var self = this;
+      if (self.id == "") {
+        self.GLOBAL.toast({
+          type: "error",
+          message: "请先登录！"
+        });
+        return;
+      }
       console.log("heiheihaha");
+      this.$createActionSheet({
+        title: "账户设置",
+        data: [
+          {
+            content: "修改密码"
+          },
+          {
+            content: "新功能还在建设中~"
+          }
+        ],
+        onSelect: (item, index) => {
+          console.log(index);
+          if (index == 0) this.setPassword(1);
+          if (index == 1)
+            this.GLOBAL.toast({
+              message: "敬请期待"
+            });
+        }
+      }).show();
+    },
+    setPassword: function(time, password) {
+      this.setPasswordShow = true;
+    },
+    updatePassword: function(value) {
+      var self = this;
+      self.GLOBAL.loadingShow();
+      self.GLOBAL.myaxios({
+        method: "POST",
+        data: {
+          id: self.id,
+          password: value
+        },
+        url: self.GLOBAL.PATH + "updatepassword",
+        success: function(res) {
+          if (res.code == "0") {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "correct",
+              message: "修改成功",
+              time: 1000
+            });
+          } else {
+            self.GLOBAL.loadingHide();
+            self.GLOBAL.toast({
+              type: "error",
+              message: res.message,
+              time: 1000
+            });
+          }
+        }
+      });
     },
     back: function() {
       this.$router.back();
@@ -247,6 +308,10 @@ export default {
         this.id = id;
       }
       this.regLogShow = false;
+      this.$emit("offreg_login", id);
+    },
+    offSetPassword: function() {
+      this.setPasswordShow = false;
     },
     setUserTheme: function() {
       var self = this;
@@ -286,10 +351,30 @@ export default {
       });
     },
     exit: function() {
+      var self = this;
       console.log("退出登录~");
       window.localStorage.setItem("user", "");
+      window.localStorage.setItem("bookurl", "");
       this.islogin = false;
       this.id = "";
+      this.$emit("offreg_login", "-1");
+    },
+    CheckPassWord(password) {
+      //必须为字母加数字且长度不小于8位
+      var str = password;
+      if (str == null || str.length < 8) {
+        return false;
+      }
+      var reg1 = new RegExp(/^[0-9A-Za-z]+$/);
+      if (!reg1.test(str)) {
+        return false;
+      }
+      var reg = new RegExp(/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/);
+      if (reg.test(str)) {
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 };
