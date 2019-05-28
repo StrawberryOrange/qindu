@@ -120,7 +120,8 @@ export default {
       showTag: -1,
       progress: 0,
       user: "",
-      userInfo: {}
+      userInfo: {},
+      tagAvailable: false
     };
   },
   watch: {
@@ -181,18 +182,25 @@ export default {
     },
     addReadingProgress: function() {
       var self = this;
-      self
-        .$createDialog({
-          type: "prompt",
-          title: "上传书签内容",
-          content:
-            "在这里输入书签提示，您将在下次登陆时看到书签提示，以帮助您快速跳转至上次阅读点。",
-          onConfirm: function(e, value) {
-            console.log(value);
-            self.updateReadingProgress(value);
-          }
-        })
-        .show();
+      if (self.tagAvailable) {
+        self
+          .$createDialog({
+            type: "prompt",
+            title: "上传书签内容",
+            content:
+              "在这里输入书签提示，您将在下次登陆时看到书签提示，以帮助您快速跳转至上次阅读点。",
+            onConfirm: function(e, value) {
+              console.log(value);
+              self.updateReadingProgress(value);
+            }
+          })
+          .show();
+      } else {
+        self.GLOBAL.toast({
+          type: "error",
+          message: "请先登录！"
+        });
+      }
     },
     updateReadingProgress: function(value) {
       var self = this;
@@ -261,6 +269,11 @@ export default {
         this.themes.fontSize(fontSize + "px");
       }
     },
+    toggleAvailable: function() {
+      this.setFontSize(this.userInfo.default_fontsize);
+      console.log(this.userInfo.default_theme);
+      this.setTheme(this.userInfo.default_theme);
+    },
     showEpub: function(ebookurl) {
       this.book = new Epub(ebookurl);
       this.rendition = this.book.renderTo("area", {
@@ -309,8 +322,6 @@ export default {
             // console.log("获取到了个人信息，如下");
             self.userInfo = res.data;
             console.log(res.data);
-            // if (res.data.default_fontsize)
-            //   self.setFontSize(res.data.default_fontsize);
             if (res.data.progress !== "") {
               self
                 .$createDialog({
@@ -323,6 +334,9 @@ export default {
             }
             console.log(self.bookurl);
             self.showEpub(self.bookurl);
+            setTimeout(function() {
+              self.toggleAvailable();
+            }, 1000);
           } else {
             self.GLOBAL.loadingHide();
             window.localStorage.setItem("user", "");
@@ -359,6 +373,7 @@ export default {
       this.bookurl = window.localStorage.getItem("bookurl")
         ? window.localStorage.getItem("bookurl")
         : this.bookurl;
+      this.tagAvailable = true;
       this.getUserInfo();
     } else {
       this.showEpub(this.bookurl);

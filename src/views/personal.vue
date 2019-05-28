@@ -249,10 +249,10 @@ export default {
         data: [
           {
             content: "修改密码"
-          },
-          {
-            content: "新功能还在建设中~"
           }
+          // {
+          //   content: "新功能还在建设中~"
+          // }
         ],
         onSelect: (item, index) => {
           console.log(index);
