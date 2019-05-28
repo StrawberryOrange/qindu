@@ -270,9 +270,11 @@ export default {
       }
     },
     toggleAvailable: function() {
-      this.setFontSize(this.userInfo.default_fontsize);
-      console.log(this.userInfo.default_theme);
-      this.setTheme(this.userInfo.default_theme);
+      if (this.userInfo.default_fontsize)
+        this.setFontSize(this.userInfo.default_fontsize);
+      // console.log(this.userInfo.default_theme);
+      if (this.userInfo.default_theme)
+        this.setTheme(this.userInfo.default_theme);
     },
     showEpub: function(ebookurl) {
       this.book = new Epub(ebookurl);
@@ -321,8 +323,8 @@ export default {
             self.GLOBAL.loadingHide();
             // console.log("获取到了个人信息，如下");
             self.userInfo = res.data;
-            console.log(res.data);
-            if (res.data.progress !== "") {
+            console.log(Object.prototype.toString.call(res.data.progress));
+            if (res.data.progress) {
               self
                 .$createDialog({
                   type: "alert",
