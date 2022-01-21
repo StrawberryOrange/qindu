@@ -19,7 +19,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "cube-ui": "~1.12.1",
-    "epubjs": "^0.3.83",
+    "epubjs": "^0.3.89",
     "node-sass": "^4.11.0",
     "qs": "^6.7.0",
     "sass-loader": "^7.1.0",
